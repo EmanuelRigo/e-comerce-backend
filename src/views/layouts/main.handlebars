@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Productos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        async function createCart() {
+            try {
+                const response = await fetch('/api/carts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ products: [] })
+                });
+
+                if (response.ok) {
+                    const newCart = await response.json();
+                    console.log('newcart', newCart);
+                    alert(`Carrito creado con ID: ${newCart.data._id}`);
+                } else {
+                    alert('Error al crear el carrito');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al crear el carrito');
+            }
+        }
+
+        function filterProducts() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = document.getElementById('query').value;
+            const price = document.getElementById('price').value;
+            const limit = document.getElementById('limit').value;
+
+            if (query) {
+                if (query === "") {
+                    urlParams.delete('query');
+                } else {
+                    urlParams.set('query', query);
+                }
+            }
+
+            if (price) {
+                if (price === "") {
+                    urlParams.delete('sort');
+                } else {
+                    urlParams.set('sort', price);
+                }
+            }
+
+            if (limit) {
+                if (limit == "") {
+                    urlParams.delete('limit');
+                } else {
+                    urlParams.set('limit', limit);
+                }
+            }
+
+            const pathParts = window.location.pathname.split('/');
+            const cid = pathParts[2];
+            if (cid) {
+                urlParams.set('cid', cid);
+            }
+
+            window.location.href = `/views/${cid}/products?${urlParams.toString()}`;
+        }
+
+        function filterByAvailability(available) {
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('available', available);
+            window.location.href = `/views/products?${urlParams.toString()}`;
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Sistema de Gestión de Productos</h1>
+            <div class="flex items-center">
+                <a href="/views/products" class="px-4 hover:bg-blue-500 rounded">Productos</a>
+                <a href="/views/realTimeProducts" class="px-4 hover:bg-blue-500 rounded">RealTime</a>
+                <a href="/views/carts" class="px-4 hover:bg-blue-500 rounded">Carts</a>
+                <a href="/api/products" class="px-4 hover:bg-blue-500 rounded">API</a>
+
+                <div class="relative inline-block text-left ml-4">
+                    <select id="query" class="block w-full px-4 py-2 text-sm text-gray-700 rounded-md" onchange="filterProducts()">
+                        <option value="">Categoria</option>
+                        <option value="electrónica">Electrónica</option>
+                        <option value="muebles">Muebles</option>
+                        <option value="oficina">Oficina</option>
+                        <option value="accesorios">Accesorios</option>
+                        <option value="deportes">Deportes</option>
+                        <option value="">Quitar Filtro</option>
+                    </select>
+                </div>
+
+                <div class="relative inline-block text-left ml-4">
+                    <select id="price" class="block w-full px-4 py-2 text-sm text-gray-700 rounded-md" onchange="filterProducts()">
+                        <option value="">Ordenar</option>
+                        <option value="asc">Precio Ascendente</option>
+                        <option value="desc">Precio Descendente</option>
+                        <option value="">Quitar Filtro</option>
+                    </select>
+                </div>
+
+                <div class="relative inline-block text-left ml-4">
+                    <select id="limit" class="block w-full px-4 py-2 text-sm text-gray-700 rounded-md" onchange="filterProducts()">
+                        <option value="">Limite</option>
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="">Quitar Filtro</option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col ml-4">
+                    <button onclick="filterByAvailability(true)" class="mb-1 px-2 py-1 bg-yellow-500 hover:bg-yellow-600 rounded text-sm">Disponibles</button>
+                    <button onclick="filterByAvailability(false)" class="px-2 py-1 bg-red-500 hover:bg-red-600 rounded text-sm">No Disponibles</button>
+                </div>
+
+                <button onclick="createCart()" class="ml-4 px-2 py-1 bg-green-500 hover:bg-green-600 rounded text-sm h-full">Crear Carrito</button>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="container mx-auto mt-8 px-4">
+        {{{body}}}
+    </main>
+</body>
+</html>

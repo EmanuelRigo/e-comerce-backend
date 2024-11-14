@@ -1,0 +1,46 @@
+{{log cart}}
+
+<h1 class="text-2xl font-bold mb-4">Carrito ID: {{cart._id}}</h1>
+
+<div class="bg-white border border-gray-300 rounded-lg shadow-md p-4">
+    <p class="text-gray-700">Items:</p>
+    <ul class="list-disc list-inside">
+        {{#each cart.products}}
+            <li class="flex justify-between items-center text-gray-600 p-2 border-b border-gray-200">
+                <span>
+                    Título: {{this._id.title}} - Precio: ${{this._id.price}} - Cantidad: {{this.quantity}}
+                </span>
+                <div class="flex space-x-2">
+                    <button onclick="deleteProduct('{{../cart._id}}', '{{this._id._id}}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-200">
+                        Eliminar
+                    </button>
+                </div>
+            </li>
+        {{/each}}
+    </ul>
+</div>
+
+{{#if cart.products.length}}
+{{else}}
+    <p class="text-red-500">No hay productos en el carrito.</p>
+{{/if}}
+
+<script>
+    async function deleteProduct(cid, pid) {
+        try {
+            const response = await fetch(`/api/carts/${cid}/products/${pid}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                alert('Producto eliminado con éxito');
+                location.reload();
+            } else {
+                alert('Error al eliminar el producto2');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al eliminar el producto');
+        }
+    }
+</script>

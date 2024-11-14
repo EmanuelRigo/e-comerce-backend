@@ -1,0 +1,94 @@
+<div class="max-w-md mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+    <div class="p-6">
+        <h2 class="text-2xl font-bold text-gray-800">{{product.title}}</h2>
+        <p class="mt-2 text-gray-600">{{product.description}}</p>
+        <div class="mt-4">
+            <span class="text-lg font-semibold text-gray-800">Precio: ${{product.price}}</span>
+        </div>
+        <div class="mt-4">
+            <span class="text-sm text-gray-500">Código: {{product.code}}</span>
+        </div>
+        <div class="mt-4">
+            <span class="text-sm text-gray-500">Categoría: {{product.category}}</span>
+        </div>
+        <div class="mt-4">
+            <span class="text-sm text-gray-500">Estado: {{#if product.status}}Disponible{{else}}No disponible{{/if}}</span>
+        </div>
+        <div class="mt-4">
+            <span class="text-sm text-gray-500">Stock: {{product.stock}}</span>
+        </div>
+        <div class="mt-4">
+            {{#if product.thumbnails.length}}
+                <h3 class="text-lg font-semibold text-gray-800">Imágenes:</h3>
+                <div class="flex space-x-2 mt-2">
+                    {{#each product.thumbnails}}
+                        <img src="{{this}}" alt="Thumbnail" class="w-16 h-16 object-cover rounded">
+                    {{/each}}
+                </div>
+            {{else}}
+                <p class="text-gray-500">No hay imágenes disponibles.</p>
+            {{/if}}
+        </div>
+        
+        <div class="mt-6 flex justify-between">
+            <div class="w-1/2 pr-2">  
+                <a href="{{#if cid}}/views/{{cid}}/products{{else}}/views/products{{/if}}" class="inline-block w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-center">
+                    Volver a Productos
+                </a>
+              
+            </div>
+            <form action="/cart/add" method="POST" class="w-1/2 pl-2">
+                <input type="hidden" name="productId" value="{{product._id}}">
+                <div class="w-1/2 pr-2">
+                    {{#if cid}}
+                        <button type="button" class="add-to-cart-btn inline-block w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-center" data-cid="{{cid}}" data-id="{{product._id}}">
+                                                 Agregar al Carrito
+                        </button>
+                    {{else}}
+                        <button type="button" class="inline-block w-full px-4 py-2 bg-gray-500 text-white rounded text-center" disabled>
+                            Sin carrito asignado
+                        </button>
+                    {{/if}}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+        
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', async (event) => {
+                const cid = button.getAttribute('data-cid'); 
+                const pid = button.getAttribute('data-id'); 
+                
+                console.log('cid',cid)
+                console.log('pid',pid)
+
+                try {
+                    const response = await fetch(`/api/carts/${cid}/products/${pid}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ productId: pid })
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        alert(`Producto agregado al carrito: ${result.data}`);
+                    } else {
+                        const errorResult = await response.json();
+                        alert(`Error al agregar el producto al carrito: ${errorResult.error}`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al agregar el producto al carrito');
+                }
+            });
+        });
+    });
+</script>
+
