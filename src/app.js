@@ -9,7 +9,7 @@ import config from "./config.js";
 
 const app = express();
 
-// Activo el motor de plantillas
+// Activo el motor de plantilla
 app.engine("handlebars", handlebars.engine());
 app.set("views", `${config.DIRNAME}/views`);
 app.set("view engine", "handlebars");
